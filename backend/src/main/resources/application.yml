@@ -1,0 +1,56 @@
+# =============================================================
+# application.yml — Spring Boot Configuration
+# =============================================================
+# Values wrapped in ${VAR:default} read from environment variables.
+# The part after the colon is the DEFAULT value used when running locally.
+# When running in Docker, docker-compose.yml injects the real values.
+# =============================================================
+
+spring:
+  application:
+    name: borderless-hospital
+
+  # -----------------------------------------------------------
+  # Database / Datasource Configuration
+  # -----------------------------------------------------------
+  datasource:
+    # KEY LESSON: In Docker, the hostname is the SERVICE NAME from docker-compose.yml
+    # DB_HOST=postgres (the service name), NOT localhost
+    # Locally (without Docker): DB_HOST defaults to "localhost"
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:hospitaldb}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  # -----------------------------------------------------------
+  # JPA / Hibernate Configuration
+  # -----------------------------------------------------------
+  jpa:
+    hibernate:
+      # ddl-auto options:
+      #   create       — drops & recreates schema every startup (loses data!)
+      #   create-drop  — same as create, but also drops on shutdown
+      #   update       — updates schema without dropping existing data (good for dev)
+      #   validate     — validates schema but doesn't change it (use in production)
+      #   none         — do nothing (fully manual schema management)
+      ddl-auto: update
+    show-sql: true        # Print generated SQL to console — great for learning!
+    properties:
+      hibernate:
+        format_sql: true  # Format the printed SQL to be readable
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# -----------------------------------------------------------
+# Server Configuration
+# -----------------------------------------------------------
+server:
+  port: ${SERVER_PORT:8080}
+
+# -----------------------------------------------------------
+# Logging
+# -----------------------------------------------------------
+logging:
+  level:
+    com.borderless.hospital: DEBUG   # Show DEBUG logs from our package
+    org.springframework.web: INFO    # Only INFO from Spring Web
+    org.hibernate.SQL: DEBUG         # Show SQL queries
